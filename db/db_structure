@@ -1,0 +1,17 @@
+profiles = {
+    'username':
+        {
+            'email':'email',
+            'password':'any',
+        }
+    }
+
+secrets = {
+    'website':
+        {
+            'email' : 'email',
+            'password' : 'password',
+            'start' : 'date formula dd-mm-yyyy',
+            'expiry' : 'date formula dd-mm-yyyy'
+        }
+    }
