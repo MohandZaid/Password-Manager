@@ -47,27 +47,24 @@ def make_hash(password):
 
 # To-Do: Make all interaction with user in prompt script
 # To-Do: Pass all needed variables from prompt to this func as arguments
-def make_profile():
+def make_profile(username, email, master_password, confirm_pass):
 
-    username = input('Username : ').lower().strip()
     if not check_valid(username, 'username'):
         return 'false_username'
 
-    email = input('Email : ').lower()
     if not check_valid(email, 'email') :
         return 'false_email'
 
-    master_password = input('Password : ').strip()
+    # To-Do: check password strength
     # if not check_valid(master_password, 'password'):
-        # return 'false_password'
-    confirm_pass = input('Confirm-Password : ').strip()
+        # return 'weak_password'
 
     if not master_password == confirm_pass :
         return False
     
     master_password = make_hash(master_password)
 
-    return { username : { 'email': email, 'master_password': master_password } }
+    return { 'username': username , 'email': email, 'master_password': master_password } 
 
 
 def password_gen():

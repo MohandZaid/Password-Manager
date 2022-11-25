@@ -2,6 +2,8 @@ import os , sys
 
 from termcolor import colored
 
+from functions import *
+from database import *
 
 banner = '''
     ____                  __  ___                
@@ -19,7 +21,7 @@ help_msg = '(h)help to show commands!'
 
 class Prompt :
 
-    def __init__(self, prompter=' Main > ', color=False) :
+    def __init__(self, prompter=' PssMngr > ', color=False) :
         self.prompter = prompter
         self.colored = color
 
@@ -32,41 +34,103 @@ class Prompt :
         while True :
 
             if self.colored :
-                main_prompt = input(colored(f'{self.prompter}', 'yellow')).lower().strip()
+                main_prompt = input(colored(f'\n{self.prompter}', 'yellow')).lower().strip()
             else :
-                main_prompt = input(f'{self.prompter}').lower().strip()
+                main_prompt = input(f'\n{self.prompter}').lower().strip()
             
-            self.prompt_functions(main_prompt)
+            if self.prompt_functions(main_prompt) is False :
+                print('Command Not Found')
+            
+    def help_msg(self) :
+        print("- (h)help\n- (i)info\n- (c)clear\n- (e)exit\n- (re)restart\n- (mkpf)mkprofile")
 
+    def prompt_functions(self, command):
 
-    def prompt_functions(self, user_prompt):
-
-        if user_prompt in ['help', 'h'] :
-            print("- (h)help")
+        if command in ['help', 'h'] :
+            self.help_msg()
         
-        elif user_prompt in ['info', 'i'] :
+        elif command in ['info', 'i'] :
             print(banner)
             print(dev)
             print(help_msg)
     
 
-        elif user_prompt in ['clear', 'c'] :
+        elif command in ['clear', 'c'] :
             os.system('clear')
-        
-        elif user_prompt in ['restart', 're'] :
+ 
+        elif command in ['e', 'exit'] :
+            sys.exit()
+       
+        elif command in ['restart', 're'] :
             self.restart()
 
-        elif user_prompt in ['e', 'exit'] :
-            sys.exit()
-
-        elif user_prompt == '':
+        elif command == '':
             pass
-        else :
-            print('Command Not Found')
+
+        elif command in ['mkprofile', 'mkpf'] :
+
+            username = input('Username : ').lower().strip()
+            email = input('Email : ').lower()
+            master_password = input('Password : ').strip()
+            confirm_pass = input('Confirm-Password : ').strip()
+
+            pf_data = make_profile(username, email, master_password, confirm_pass)
+
+            if pf_data == 'false_username' :
+                print('Invalid Username')
+
+            if pf_data == 'false_email' :
+                print('Invalid Email')
+
+            elif pf_data :
+                print('Profile Added')
+                DBHandler(pf_data['username'], pf_data['email'], pf_data['master_password'])
 
 
+        else:
+            return False
+        
     def restart(self):
         
         print("\nRestarting PassMngr ...\n")
         app = sys.executable
         os.execl(app, app, *sys.argv)
+
+
+class UserPrompt(Prompt) :
+
+    def __init__(self, user, prompter=' user > ', color=False):
+
+        self.user = user
+        self.prompter = prompter
+        self.colored = color
+
+        self.prompter = f' {self.user}@PassMngr > '
+
+        while True :
+
+            if self.colored :
+                main_prompt = input(colored(f'{self.prompter}', 'yellow')).lower().strip()
+            else :
+                main_prompt = input(f'{self.prompter}').lower().strip()
+            
+            if self.prompt_functions(main_prompt) is None :
+                continue
+            elif self.user_functions(main_prompt) is False :
+                print('Command Not Found2')
+
+    def help_msg(self) :
+        print("- (h)help\n- (t)test")
+
+    def user_functions(self, command) :
+
+        if command in ['test'] :
+            print('test')
+
+        else :
+            return False
+        
+
+# Debugging
+# u = UserPrompt('mohand', color=True)
+u = Prompt(color=True)

@@ -3,7 +3,7 @@ import json
 class DBHandler :
     
     # When initiating the object means to make new profile or edit a profile
-    def __init__(self, username, master_password, email=None) :
+    def __init__(self, username, master_password, email) :
         
         self.username = username
         self.password = master_password
