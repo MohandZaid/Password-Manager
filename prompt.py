@@ -1,27 +1,28 @@
 import os , sys
 
 from termcolor import colored
+from getpass import getpass
 
 from functions import *
 from database import *
 
 banner = '''
-    ____                  __  ___                
-   / __ \____  ____ _____/  |/  /___  ____  _____
-  / /_/ / __ `/ ___` ___/ /|_/ / __ \/ __ \/ ___/
- / ____/ /_/.(__  |__  ) /  / / / / / /_/ / /    
-/_/    \__,_/____/____/_/  /_/_/ /_/\__, /_/     
-                 By`Mohand Zaid`/_______/        
+     ____                  __  ___                
+    / __ \____  ____ _____/  |/  /___  ____  _____
+   / /_/ / __ `/ ___` ___/ /|_/ / __ \/ __ \/ ___/
+  / ____/ /_/.(__  |__  ) /  / / / / / /_/ / /    
+ /_/    \__,_/____/____/_/  /_/_/ /_/\__, /_/     
+                  By`Mohand Zaid`/_______/        
 
                 '''
 
-dev = 'Developed By: Mohand Zaid (mohandzaid33@gmail.com)'
-help_msg = '(h)help to show commands!'
+dev = ' Developed By: Mohand Zaid (mohandzaid33@gmail.com)'
+help_msg = ' (h)help to show commands!'
  
 
 class Prompt :
 
-    def __init__(self, prompter=' PssMngr > ', color=False) :
+    def __init__(self, prompter='PssMngr > ', color=False) :
         self.prompter = prompter
         self.colored = color
 
@@ -67,24 +68,36 @@ class Prompt :
         elif command == '':
             pass
 
-        elif command in ['mkprofile', 'mkpf'] :
+        elif command in ['make-profile', 'mkpf'] :
 
             username = input('Username : ').lower().strip()
             email = input('Email : ').lower()
-            master_password = input('Password : ').strip()
-            confirm_pass = input('Confirm-Password : ').strip()
+            master_password = getpass('Password : ').strip()
+            confirm_pass = getpass('Confirm-Password : ').strip()
+
+            if username in DBHandler.get_all_profile_names():
+                print('\nAlert: Username Already Exist')
+                return
 
             pf_data = make_profile(username, email, master_password, confirm_pass)
 
             if pf_data == 'false_username' :
-                print('Invalid Username')
+                print('\nAlert: Invalid Username')
 
             if pf_data == 'false_email' :
-                print('Invalid Email')
+                print('\nAlert: Invalid Email')
 
             elif pf_data :
-                print('Profile Added')
-                DBHandler(pf_data['username'], pf_data['email'], pf_data['master_password'])
+                print('\nProfile Added Successfully')
+                DBHandler(pf_data['username'], pf_data['master_password'], pf_data['email'])
+
+        elif command in ['enter-profile', 'enter'] :
+            
+            username = input('Username : ').lower().strip()
+            master_password = hash_password(getpass('Password : ').lower().strip())
+
+            if enter_profile(username, master_password) :
+                UserPrompt(user=username, prompter=f'{username} > ', color=self.colored)
 
 
         else:
@@ -99,13 +112,13 @@ class Prompt :
 
 class UserPrompt(Prompt) :
 
-    def __init__(self, user, prompter=' user > ', color=False):
+    def __init__(self, user, prompter='user > ', color=False):
 
         self.user = user
         self.prompter = prompter
         self.colored = color
 
-        self.prompter = f' {self.user}@PassMngr > '
+        self.prompter = f'{self.user}@PassMngr > '
 
         while True :
 

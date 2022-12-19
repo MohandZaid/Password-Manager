@@ -9,25 +9,38 @@ class DBHandler :
         self.password = master_password
         self.email = email
 
-        profiles_buffer = self.load_db('profiles.json')
+        profiles_buffer = DBHandler.load_db('profiles.json')
 
         profiles_buffer.update({self.username : { 'email': self.email, 'password': self.password}})
 
-        self.save_db(profiles_buffer, 'profiles.json')
-
+        DBHandler.save_db(profiles_buffer, 'profiles.json')
 
         
-    def load_db(self, db_name):
+    def load_db(db_name):
         try:
             with open(f'db/{db_name}', 'r') as db:
                 return json.load(db)
         except FileNotFoundError as err :
             return err
 
-    def save_db(self, db_buffer_to_save, db_name):
+    def save_db(db_buffer_to_save, db_name):
         try:
             with open(f'db/{db_name}', 'w') as db:
                 json.dump(db_buffer_to_save, db)
         except NameError as err :
+            return err
+    
+    def get_all_profile_names():
+        try:
+            with open(f'db/profiles.json', 'r') as db:
+                return json.load(db).keys()
+        except FileNotFoundError as err :
+            return err
+
+    def get_password(username):
+        try:
+            with open(f'db/profiles.json', 'r') as db:
+                return json.load(db)[username]['password']
+        except FileNotFoundError as err :
             return err
 

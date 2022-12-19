@@ -1,7 +1,9 @@
 import re
 import time
 import random
+import hashlib
 
+from database import *
 
 # To-Do : add uniqe email checker in registiration
 # To-Do : check valid real date 
@@ -42,8 +44,23 @@ def check_valid(input_from_user, check):
         return True
     return False
 
-def make_hash(password):
-    pass
+def hash_password(password):
+
+    # Convert password string to bytes
+    password_bytes = password.encode('utf-8')
+
+    # Create SHA-256 hash object
+    sha256_hash = hashlib.sha256()
+
+    # Update the hash object with the password bytes
+    sha256_hash.update(password_bytes)
+
+    # Get the hexadecimal representation of the hash
+    hashed_password = sha256_hash.hexdigest()
+
+    return hashed_password
+
+print(hash_password('mohand'))
 
 # To-Do: Make all interaction with user in prompt script
 # To-Do: Pass all needed variables from prompt to this func as arguments
@@ -62,7 +79,7 @@ def make_profile(username, email, master_password, confirm_pass):
     if not master_password == confirm_pass :
         return False
     
-    master_password = make_hash(master_password)
+    master_password = hash_password(master_password)
 
     return { 'username': username , 'email': email, 'master_password': master_password } 
 
@@ -98,16 +115,14 @@ def secret_templet():
 # To-Do: Make function to fetch profiles database
 global users, profiles
 
-def login(username, password, debug=False):
+def enter_profile(username, password, debug=False):
     if debug :
         debugger = ('user@debug.com', 'debug')
         return debugger
 
-    if username in profiles :
+    if username in DBHandler.get_all_profile_names() :
         
-        user = profiles[username]
-
-        if make_hash(password) == user['password'] :
+        if password == DBHandler.get_password(username=username) :
             return True
         return False
 
