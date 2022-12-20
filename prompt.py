@@ -86,6 +86,13 @@ class Prompt :
 
             if pf_data == 'false_email' :
                 print('\nAlert: Invalid Email')
+            
+            if pf_data == 'weak_password' :
+                print('\nAlert: Weak Password')
+                print("Please ensure your password meets the following criteria:")
+                print("- At least 8 characters long")
+                print("- Includes at least one uppercase letter, one lowercase letter, one digit")
+                print("- Includes at least one special character (!@#$%^&*)")
 
             elif pf_data :
                 print('\nProfile Added Successfully')
@@ -143,7 +150,3 @@ class UserPrompt(Prompt) :
         else :
             return False
         
-
-# Debugging
-# u = UserPrompt('mohand', color=True)
-u = Prompt(color=True)

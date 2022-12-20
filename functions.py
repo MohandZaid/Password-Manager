@@ -7,7 +7,6 @@ from database import *
 
 # To-Do : add uniqe email checker in registiration
 # To-Do : check valid real date 
-# To-Do: Check Strong Password
 
 
 def id_gen():
@@ -34,15 +33,29 @@ def check_valid(input_from_user, check):
     elif check == 'string' :
         return all(i.isalpha() or i.isspace() for i in input_from_user)
 
-    #To-Do: Check Strong Password
-    elif check == 'passwrod':
-        pass
-
-
     matched = re.search(pattern,input_from_user)
     if matched :
         return True
     return False
+
+def is_strong_password(password):
+
+    # Check length (minimum 8 characters)
+    if len(password) < 8:
+        return False
+    
+    # Check for at least one uppercase, one lowercase letter, and one digit
+    if not re.search(r'[A-Z]', password) or \
+       not re.search(r'[a-z]', password) or \
+       not re.search(r'\d', password):
+
+        return False
+    
+    # Check for at least one special character (!@#$%^&*)
+    if not re.search(r'[!@#$%^&*]', password):
+        return False
+    
+    return True
 
 def hash_password(password):
 
@@ -60,7 +73,6 @@ def hash_password(password):
 
     return hashed_password
 
-print(hash_password('mohand'))
 
 # To-Do: Make all interaction with user in prompt script
 # To-Do: Pass all needed variables from prompt to this func as arguments
@@ -72,9 +84,8 @@ def make_profile(username, email, master_password, confirm_pass):
     if not check_valid(email, 'email') :
         return 'false_email'
 
-    # To-Do: check password strength
-    # if not check_valid(master_password, 'password'):
-        # return 'weak_password'
+    if not is_strong_password(master_password) :
+        return 'weak_password'
 
     if not master_password == confirm_pass :
         return False
@@ -111,9 +122,6 @@ def secret_templet():
     return {website : {'email': email, 'password': password,\
                        'start': start, 'expiry': expiry}}
 
-
-# To-Do: Make function to fetch profiles database
-global users, profiles
 
 def enter_profile(username, password, debug=False):
     if debug :
