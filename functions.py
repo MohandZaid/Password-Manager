@@ -95,8 +95,17 @@ def make_profile(username, email, master_password, confirm_pass):
     return { 'username': username , 'email': email, 'master_password': master_password } 
 
 
-def password_gen():
-    pass
+def password_gen(length=10):
+
+    # Define the characters to use in the password
+    # Avoided characters : \<>|~
+    characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUV\
+    WXYZ0123456789!"#$%&()*+,-./:;=?@[]^_`{}' + "'"
+
+    # Generate a password with random characters
+    password = ''.join(random.choice(characters) for _ in range(length))
+
+    return password
 
 # This function to manage password expiration
 def password_status(query):
