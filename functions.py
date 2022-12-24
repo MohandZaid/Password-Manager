@@ -100,7 +100,7 @@ def password_gen(length=10):
     # Define the characters to use in the password
     # Avoided characters : \<>|~
     characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUV\
-    WXYZ0123456789!"#$%&()*+,-./:;=?@[]^_`{}' + "'"
+WXYZ0123456789!#$%&*+-_./:;=?@'
 
     # Generate a password with random characters
     password = ''.join(random.choice(characters) for _ in range(length))

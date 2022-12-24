@@ -22,7 +22,7 @@ help_msg = ' (h)help to show commands!'
 
 class Prompt :
 
-    def __init__(self, prompter='PssMngr > ', color=False) :
+    def __init__(self, prompter='PassMngr > ', color=False) :
         self.prompter = prompter
         self.colored = color
 
@@ -41,9 +41,51 @@ class Prompt :
             
             if self.prompt_functions(main_prompt) is False :
                 print('Command Not Found')
-            
+
+
+    def mkpf_action(self):
+
+        username = input('Username : ').lower().strip()
+        email = input('Email : ').lower()
+        master_password = getpass('Password : ').strip()
+        confirm_pass = getpass('Confirm-Password : ').strip()
+
+        if username in DBHandler.get_all_profile_names():
+            print('\nAlert: Username Already Exist')
+            return
+
+        pf_data = make_profile(username, email, master_password, confirm_pass)
+
+        if pf_data == 'false_username' :
+            print('\nAlert: Invalid Username')
+
+        if pf_data == 'false_email' :
+            print('\nAlert: Invalid Email')
+        
+        if pf_data == 'weak_password' :
+            print('\nAlert: Weak Password')
+            print("Please ensure your password meets the following criteria:")
+            print("- At least 8 characters long")
+            print("- Includes at least one uppercase letter, one lowercase letter, one digit")
+            print("- Includes at least one special character (!@#$%^&*)")
+
+        elif pf_data :
+            print('\nProfile Added Successfully')
+            DBHandler(pf_data['username'], pf_data['master_password'], pf_data['email'])
+
+        return 
+
+    def enter_action(self):
+
+        username = input('Username : ').lower().strip()
+        master_password = hash_password(getpass('Password : ').lower().strip())
+
+        if enter_profile(username, master_password) :
+            UserPrompt(user=username, prompter=f'{username} > ', color=self.colored)
+        
     def help_msg(self) :
         print("- (h)help\n- (i)info\n- (c)clear\n- (e)exit\n- (re)restart\n- (mkpf)mkprofile")
+        
 
     def prompt_functions(self, command):
 
@@ -70,41 +112,19 @@ class Prompt :
 
         elif command in ['make-profile', 'mkpf'] :
 
-            username = input('Username : ').lower().strip()
-            email = input('Email : ').lower()
-            master_password = getpass('Password : ').strip()
-            confirm_pass = getpass('Confirm-Password : ').strip()
+            try:
+                self.mkpf_action()
 
-            if username in DBHandler.get_all_profile_names():
-                print('\nAlert: Username Already Exist')
-                return
-
-            pf_data = make_profile(username, email, master_password, confirm_pass)
-
-            if pf_data == 'false_username' :
-                print('\nAlert: Invalid Username')
-
-            if pf_data == 'false_email' :
-                print('\nAlert: Invalid Email')
-            
-            if pf_data == 'weak_password' :
-                print('\nAlert: Weak Password')
-                print("Please ensure your password meets the following criteria:")
-                print("- At least 8 characters long")
-                print("- Includes at least one uppercase letter, one lowercase letter, one digit")
-                print("- Includes at least one special character (!@#$%^&*)")
-
-            elif pf_data :
-                print('\nProfile Added Successfully')
-                DBHandler(pf_data['username'], pf_data['master_password'], pf_data['email'])
+            except KeyboardInterrupt:
+                pass
 
         elif command in ['enter-profile', 'enter'] :
             
-            username = input('Username : ').lower().strip()
-            master_password = hash_password(getpass('Password : ').lower().strip())
+            try:
+                self.enter_action()
 
-            if enter_profile(username, master_password) :
-                UserPrompt(user=username, prompter=f'{username} > ', color=self.colored)
+            except KeyboardInterrupt:
+                pass
 
 
         else:
@@ -137,10 +157,10 @@ class UserPrompt(Prompt) :
             if self.prompt_functions(main_prompt) is None :
                 continue
             elif self.user_functions(main_prompt) is False :
-                print('Command Not Found2')
+                print('Command Not Found')
 
     def help_msg(self) :
-        print("- (h)help\n- (t)test")
+        print("- (h)help\n- (i)info\n- (c)clear\n- (e)exit\n- (re)restart\n- ")
 
     def user_functions(self, command) :
 
