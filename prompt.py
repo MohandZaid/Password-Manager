@@ -5,6 +5,8 @@ from getpass import getpass
 
 from functions import *
 from database import *
+from secretscrypto import *
+
 
 banner = '''
      ____                  __  ___                
@@ -38,9 +40,10 @@ class Prompt :
                 main_prompt = input(colored(f'\n{self.prompter}', 'yellow')).lower().strip()
             else :
                 main_prompt = input(f'\n{self.prompter}').lower().strip()
-            
-            if self.prompt_functions(main_prompt) is False :
-                print('Command Not Found')
+
+            if self.general_commands(main_prompt) is False :
+                if self.main_prompt_commands(main_prompt) is False :
+                    print('Command Not Found')
 
 
     def mkpf_action(self):
@@ -78,18 +81,22 @@ class Prompt :
     def enter_action(self):
 
         username = input('Username : ').lower().strip()
-        master_password = hash_password(getpass('Password : ').lower().strip())
+        master_password = hash_secret(getpass('Password : ').lower().strip())
 
         if enter_profile(username, master_password) :
             UserPrompt(user=username, prompter=f'{username} > ', color=self.colored)
-        
+
     def help_msg(self) :
-        print("- (h)help\n- (i)info\n- (c)clear\n- (e)exit\n- (re)restart\n- (mkpf)mkprofile")
+        print("\n- (mkpf) make-profile\n- (enter) enter-profile\n- (sec) prompt-secret\n\
+- (h) help\n- (i) info\n- (c) clear\n- (e) exit\n- (re) restart")
         
 
-    def prompt_functions(self, command):
+    def general_commands(self, command):
+        
+        if command == '' :
+            return
 
-        if command in ['help', 'h'] :
+        elif command in ['help', 'h'] :
             self.help_msg()
         
         elif command in ['info', 'i'] :
@@ -107,8 +114,14 @@ class Prompt :
         elif command in ['restart', 're'] :
             self.restart()
 
-        elif command == '':
-            pass
+        else :
+            return False
+
+
+    def main_prompt_commands(self, command):
+
+        if command == '':
+            return
 
         elif command in ['make-profile', 'mkpf'] :
 
@@ -125,6 +138,15 @@ class Prompt :
 
             except KeyboardInterrupt:
                 pass
+
+        elif command in ['d', 'debug'] :
+            try:
+                UserPrompt('test', color=True)
+            except KeyboardInterrupt:
+                pass
+
+        elif command in ['create-secret', 'sec'] :
+            print(f'\n{password_gen()}')
 
 
         else:
@@ -150,22 +172,47 @@ class UserPrompt(Prompt) :
         while True :
 
             if self.colored :
-                main_prompt = input(colored(f'{self.prompter}', 'yellow')).lower().strip()
+                main_prompt = input(colored(f'\n{self.prompter}', 'yellow')).lower().strip()
             else :
-                main_prompt = input(f'{self.prompter}').lower().strip()
+                main_prompt = input(f'\n{self.prompter}').lower().strip()
             
-            if self.prompt_functions(main_prompt) is None :
-                continue
-            elif self.user_functions(main_prompt) is False :
-                print('Command Not Found')
+            if self.general_commands(main_prompt) is False :
+                if self.user_commands(main_prompt) is False :
+                    print('Command Not Found')
+
+    
+    def create_secret(self):
+            website = input('Website : ').lower().strip()
+
+            email = input('Email : ').lower().strip()
+            if not check_valid(email, 'email') :
+                print('\nAlert: Invalid Email')
+                return
+
+            password = password_gen()
+
+            print(password)
+
+            password = encrypt_secret(DBHandler.get_password(self.user), password)
+
+            start = password_status('start')
+            expiry = password_status('setexpiry')
+
+            return {website : {'email': email, 'password': password,\
+                            'start': start, 'expiry': expiry}}
 
     def help_msg(self) :
-        print("- (h)help\n- (i)info\n- (c)clear\n- (e)exit\n- (re)restart\n- ")
+        print("\n- (sec) create-secret\n- (h) help\n- (i) info\n- (c) clear\n\
+- (e) exit\n- (re) restart")
 
-    def user_functions(self, command) :
+    def user_commands(self, command) :
 
         if command in ['test'] :
             print('test')
+     
+        elif command in ['create-secret', 'sec'] :
+            print(self.create_secret())
+
 
         else :
             return False

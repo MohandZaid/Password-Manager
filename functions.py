@@ -1,9 +1,9 @@
 import re
 import time
 import random
-import hashlib
 
 from database import *
+from secretscrypto import *
 
 # To-Do : add uniqe email checker in registiration
 # To-Do : check valid real date 
@@ -57,25 +57,6 @@ def is_strong_password(password):
     
     return True
 
-def hash_password(password):
-
-    # Convert password string to bytes
-    password_bytes = password.encode('utf-8')
-
-    # Create SHA-256 hash object
-    sha256_hash = hashlib.sha256()
-
-    # Update the hash object with the password bytes
-    sha256_hash.update(password_bytes)
-
-    # Get the hexadecimal representation of the hash
-    hashed_password = sha256_hash.hexdigest()
-
-    return hashed_password
-
-
-# To-Do: Make all interaction with user in prompt script
-# To-Do: Pass all needed variables from prompt to this func as arguments
 def make_profile(username, email, master_password, confirm_pass):
 
     if not check_valid(username, 'username'):
@@ -90,7 +71,7 @@ def make_profile(username, email, master_password, confirm_pass):
     if not master_password == confirm_pass :
         return False
     
-    master_password = hash_password(master_password)
+    master_password = hash_secret(master_password)
 
     return { 'username': username , 'email': email, 'master_password': master_password } 
 
@@ -111,31 +92,7 @@ WXYZ0123456789!#$%&*+-_./:;=?@'
 def password_status(query):
     pass
 
-
-# To-Do: Make all interaction with user in prompt script
-# To-Do: Pass all needed variables from prompt to this func as arguments
-def secret_templet():
-
-    # To-Do: Check valid domain name
-    website = input('Website : ').lower().strip()
-
-    email = input('Email : ').lower().strip()
-    if not check_valid(email, 'email') :
-        return 'false_email'
-
-    password = password_gen()
-
-    start = password_status('start')
-    expiry = password_status('setexpiry')
-
-    return {website : {'email': email, 'password': password,\
-                       'start': start, 'expiry': expiry}}
-
-
-def enter_profile(username, password, debug=False):
-    if debug :
-        debugger = ('user@debug.com', 'debug')
-        return debugger
+def enter_profile(username, password):
 
     if username in DBHandler.get_all_profile_names() :
         
