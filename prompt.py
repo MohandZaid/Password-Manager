@@ -32,7 +32,7 @@ class Prompt :
             print(colored(banner,'yellow'))
         else:
             print(banner)
-            print("Colored Mode Off\nrun 'pip install pyfiglet termcolor'and restart program\n")
+            print("Colored Mode Off\nrun 'pip install termcolor'and restart program\n")
 
         while True :
 
@@ -60,13 +60,13 @@ class Prompt :
         pf_data = make_profile(username, email, master_password, confirm_pass)
 
         if pf_data == 'false_username' :
-            print('\nAlert: Invalid Username')
+            print('\n(Alert) Invalid Username')
 
         if pf_data == 'false_email' :
-            print('\nAlert: Invalid Email')
+            print('\n(Alert) Invalid Email')
         
         if pf_data == 'weak_password' :
-            print('\nAlert: Weak Password')
+            print(f'\n(Alert) Weak Password')
             print("Please ensure your password meets the following criteria:")
             print("- At least 8 characters long")
             print("- Includes at least one uppercase letter, one lowercase letter, one digit")
@@ -83,8 +83,15 @@ class Prompt :
         username = input('Username : ').lower().strip()
         master_password = hash_secret(getpass('Password : ').lower().strip())
 
-        if enter_profile(username, master_password) :
+        enter = enter_profile(username, master_password)
+        if enter == 'not-user':
+            print(f'\n(Alert) Invalid Profile')
+
+        elif enter is True :
+            print(f'\n(Successful) Entery')
             UserPrompt(user=username, prompter=f'{username} > ', color=self.colored)
+        else :
+            print(f'\n(Alert) Invalid Password')
 
     def help_msg(self) :
         print("\n- (mkpf) make-profile\n- (enter) enter-profile\n- (sec) prompt-secret\n\
@@ -146,7 +153,7 @@ class Prompt :
                 pass
 
         elif command in ['create-secret', 'sec'] :
-            print(f'\n{password_gen()}')
+            print(f'\n(Generated Secret) {password_gen()}')
 
 
         else:
@@ -213,6 +220,9 @@ class UserPrompt(Prompt) :
         elif command in ['create-secret', 'sec'] :
             print(self.create_secret())
 
+        elif command in ['quit', 'q'] :
+            print(f'\n(Quitting Profile)')
+            raise KeyboardInterrupt
 
         else :
             return False
