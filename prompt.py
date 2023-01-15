@@ -7,38 +7,32 @@ from getpass import getpass
 from functions import *
 from database import *
 from secretscrypto import *
+from banners import *
 
 
-banner = '''
-     ____                  __  ___                
-    / __ \____  ____ _____/  |/  /___  ____  _____
-   / /_/ / __ `/ ___` ___/ /|_/ / __ \/ __ \/ ___/
-  / ____/ /_/.(__  |__  ) /  / / / / / /_/ / /    
- /_/    \__,_/____/____/_/  /_/_/ /_/\__, /_/     
-                  By`Mohand Zaid`/_______/        
-
-                '''
-
-dev = ' Developed By: Mohand Zaid (mohandzaid33@gmail.com)'
-help_msg = ' (h)help to show commands!'
+dev = 'Developed By: Mohand Zaid (mohandzaid33@gmail.com)'
+help_msg = '(h)help to show commands!'
  
 
 class Prompt :
 
-    def __init__(self, prompter='PassMngr > ', color=False) :
+    def __init__(self, prompter='PassMngr > ', color='yellow') :
         self.prompter = prompter
         self.colored = color
 
         if self.colored :
-            print(colored(banner,'yellow'))
+            print(colored(bannar_passmngr, self.colored))
+            print(colored(dev, self.colored))
+            print(colored(help_msg, self.colored))
         else:
-            print(banner)
-            print("Colored Mode Off\nrun 'pip install termcolor'and restart program\n")
+            print(bannar_passmngr)
+            print(dev)
+            print("\nColored Mode Off\nrun 'pip install termcolor'and restart program\n")
 
         while True :
 
             if self.colored :
-                main_prompt = input(colored(f'\n{self.prompter}', 'yellow')).lower().strip()
+                main_prompt = input(colored(f'\n{self.prompter}', self.colored)).lower().strip()
             else :
                 main_prompt = input(f'\n{self.prompter}').lower().strip()
 
@@ -113,7 +107,7 @@ class Prompt :
             self.help_msg()
         
         elif command in ['info', 'i'] :
-            print(banner)
+            print(bannar_passmngr)
             print(dev)
             print(help_msg)
     
@@ -123,6 +117,13 @@ class Prompt :
  
         elif command in ['e', 'exit'] :
             os.system('cls' if os.name == 'nt' else 'clear')
+            if self.colored :
+                print(colored(bannar_passmngr, self.colored))
+                print(colored(bannar_lock, self.colored))
+            else :
+                print(bannar_passmngr)
+                print(bannar_lock)
+
             sys.exit()
        
         elif command in ['restart', 're'] :
@@ -156,7 +157,7 @@ class Prompt :
 
         elif command in ['d', 'debug'] :
             try:
-                UserPrompt('test', color=True)
+                UserPrompt('test', color=self.colored)
             except KeyboardInterrupt:
                 pass
 
@@ -168,10 +169,14 @@ class Prompt :
             return False
         
     def restart(self):
-        
+
         print("\nRestarting PassMngr ...\n")
         app = sys.executable
-        os.execl(app, app, *sys.argv)
+
+        if os.name == 'nt' :
+            subprocess.call([app] + sys.argv)
+        else:
+            os.execl(app, app, *sys.argv)
 
 
 class UserPrompt(Prompt) :
@@ -184,10 +189,15 @@ class UserPrompt(Prompt) :
 
         self.prompter = f'{self.user}@PassMngr > '
 
+        if self.colored :
+            print(colored(bannar_open_lock, self.colored))
+        else :
+            print(bannar_open_lock)
+
         while True :
 
             if self.colored :
-                main_prompt = input(colored(f'\n{self.prompter}', 'yellow')).lower().strip()
+                main_prompt = input(colored(f'\n{self.prompter}', self.colored)).lower().strip()
             else :
                 main_prompt = input(f'\n{self.prompter}').lower().strip()
             
@@ -239,6 +249,11 @@ class UserPrompt(Prompt) :
 
             sleep(10)
             os.system('cls' if os.name == 'nt' else 'clear')
+
+            if self.colored:
+                print(colored(bannar_secret, self.colored))
+            else :
+                print(bannar_secret)
 
             return
 

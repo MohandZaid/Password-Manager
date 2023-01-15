@@ -6,7 +6,7 @@ from prompt import Prompt
 if __name__ == '__main__':
 
     try:
-        Prompt(color=True)
+        Prompt()
 
     except KeyboardInterrupt :
         sys.exit()
