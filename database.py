@@ -42,9 +42,16 @@ class DBHandler :
         except FileNotFoundError as err :
             return err
 
-    def get_password(username):
+    def get_password(username, db_to_query='profilesdb.json', website=None):
         try:
-            with open(f'db/profilesdb.json', 'r') as db_file:
+            with open(f'db/{db_to_query}', 'r') as db_file:
+                # TESTING BLOCK
+                ###############
+                if db_to_query == 'secretdb.json' :
+                    password = json.load(db_file)[username][website]['password']
+                    db_file.close()
+                    return password
+                ###############
                 password = json.load(db_file)[username]['password']
                 db_file.close()
                 return password
@@ -55,10 +62,14 @@ class DBHandler :
 
         secrets_buffer = DBHandler.load_db('secretdb.json')
 
-        if not profilename in DBHandler.get_all_profile_names(db_to_query='secretdb.json') :
-            secrets_buffer.update({profilename:{}})
+        try :
+            if not profilename in DBHandler.get_all_profile_names(db_to_query='secretdb.json') :
+                secrets_buffer.update({profilename:{}})
+        except TypeError :
+            return '(Error) File <secretdb.json> Not Found'
 
         secrets_buffer[profilename][website] = db_buffer_to_save
 
         DBHandler.save_db(secrets_buffer, 'secretdb.json')
+        return True
 

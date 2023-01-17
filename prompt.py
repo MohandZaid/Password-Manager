@@ -16,7 +16,7 @@ help_msg = '(h)help to show commands!'
 
 class Prompt :
 
-    def __init__(self, prompter='PassMngr > ', color='yellow') :
+    def __init__(self, prompter='PassMngr > ', color=False) :
         self.prompter = prompter
         self.colored = color
 
@@ -81,15 +81,15 @@ class Prompt :
     def enter_action(self):
 
         username = input('Username : ').lower().strip()
-        master_password = hash_secret(getpass('Password : ').strip())
+        master_password = getpass('Password : ').strip()
 
         enter = enter_profile(username, master_password)
         if enter == 'not-user':
             print(f'\n(Alert) Invalid Profile')
 
-        elif enter is True :
+        elif enter[0] is True :
             print(f'\n(Successful) Entery')
-            UserPrompt(user=username, prompter=f'{username} > ', color=self.colored)
+            UserPrompt(user=username, prompter=f'{username} > ', color=self.colored, key=enter[1])
         else :
             print(f'\n(Alert) Invalid Password')
 
@@ -181,11 +181,12 @@ class Prompt :
 
 class UserPrompt(Prompt) :
 
-    def __init__(self, user, prompter='user > ', color=False):
+    def __init__(self, user, prompter='user > ', color=False, key=''):
 
         self.user = user
         self.prompter = prompter
         self.colored = color
+        self.key = key
 
         self.prompter = f'{self.user}@PassMngr > '
 
@@ -229,34 +230,36 @@ class UserPrompt(Prompt) :
                 print('\n(Alert) Profile Not Saved')
                 return False
 
-
-            password = encrypt_secret(DBHandler.get_password(self.user), password)
+            password_encrypted =\
+            secret_crypto_action(self.key, password, action='encrypt')
 
             start = password_status('start')
             expiry = password_status('setexpiry')
 
-            DBHandler.save_secret(profilename=self.user,\
+            saved = DBHandler.save_secret(profilename=self.user,\
                     website= website ,\
                     db_buffer_to_save= {\
                     'login': login,\
-                    'password': password,\
+                    'password': str(password_encrypted)[2:-1],\
                     'start': start, 'expiry': expiry 
                                         } )
 
-            print(f'\n(Successful) Secret for [{website}] Added')
-            print(f'(Successful) Secret is {password}')
-            print(f'\n(Successful) Screen will be cleared in 10 seconds')
+            if saved == True :
 
-            sleep(10)
-            os.system('cls' if os.name == 'nt' else 'clear')
+                print(f'\n(Successful) Secret for [{website}] Added')
+                print(f'(Successful) Secret is {password}')
+                print(f'\n(Successful) Screen will be cleared in 10 seconds')
 
-            if self.colored:
-                print(colored(bannar_secret, self.colored))
-            else :
-                print(bannar_secret)
+                sleep(10)
+                os.system('cls' if os.name == 'nt' else 'clear')
 
-            return
-
+                if self.colored:
+                    print(colored(bannar_secret, self.colored))
+                else :
+                    print(bannar_secret)
+                return
+            else : 
+                print(saved)
 
     def help_msg(self) :
         print("\n- (sec) create-secret\n- (h) help\n- (i) info\n- (c) clear\n\
@@ -269,6 +272,20 @@ class UserPrompt(Prompt) :
      
         elif command in ['create-secret', 'sec'] :
             self.create_secret()
+
+        elif command in ['get-password', 'g'] :
+
+            # TESTING BLOCK
+            ################
+            login = input('\nWhich Login? ')
+            print('-'*22)
+            p = DBHandler.get_password(self.user, 'secretdb.json', website=login)
+
+            d = secret_crypto_action(self.key, p, 'decrypt')
+            print(p)
+            print('-'*22)
+            print(d)
+            ################
 
         elif command in ['quit', 'q'] :
             print(f'\n(Quitting Profile)')

@@ -76,15 +76,34 @@ def make_profile(username, email, master_password, confirm_pass):
     return { 'username': username , 'email': email, 'master_password': master_password } 
 
 
-def password_gen(length=10):
+def password_gen(length=12):
 
-    # Define the characters to use in the password
-    # Avoided characters : \<>|~
+    # Final Total Password Length =
+    # length(default=12) + 10(from random hash)
+    length -= 8
+
+    # Avoided characters : \<>|~.-
+
     characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUV\
-WXYZ0123456789!#$%&*+-_./:;=?@'
+WXYZ0123456789!#$%&*+_/:;=?@'
 
-    # Generate a password with random characters
-    password = ''.join(random.choice(characters) for _ in range(length))
+    characters_lower = 'abcdefghijklmnopqrstuvwxyz'
+    characters_upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    characters_digits = '0123456789'
+    characters_metachar = '!#$%&*+_/:;=?@'
+
+    # This block to ensure password contain at least: 
+    # Uppercase characters, Lowercase characters and Special characters
+    password=''.join(random.choice(characters_lower) for _ in range(2))
+    password=password.join(random.choice(characters_upper) for _ in range(2))
+    password=password.join(random.choice(characters_digits) for _ in range(2))
+
+    password = password + hash_secret(password)[4:14]
+
+    password=password.join(random.choice(characters_metachar) for _ in range(2))
+
+
+    password = password + ''.join(random.choice(characters) for _ in range(length))
 
     return password
 
@@ -96,9 +115,10 @@ def enter_profile(username, password):
 
     if username in DBHandler.get_all_profile_names('profilesdb.json') :
         
-        if password == DBHandler.get_password(username=username) :
-            return True
-        return False
+        if hash_secret(password) == DBHandler.get_password(username=username) :
+            return (True, hash_secret(password, 'sha256'))
+        return (False, None)
 
     return 'not-user'
 
+print(password_gen())
