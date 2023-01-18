@@ -122,9 +122,11 @@ class Prompt :
             os.system('cls' if os.name == 'nt' else 'clear')
  
         elif command in ['e', 'exit'] :
+            os.system('cls' if os.name == 'nt' else 'clear')
             sys.exit()
        
         elif command in ['restart', 're'] :
+            os.system('cls' if os.name == 'nt' else 'clear')
             self.restart()
 
         else :

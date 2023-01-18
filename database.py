@@ -19,7 +19,7 @@ class DBHandler :
     def load_db(db_name):
         try:
             with open(f'db/{db_name}', 'r') as db_file:
-                db = json.load(db)
+                db = json.load(db_file)
                 db_file.close()
                 return db
         except FileNotFoundError as err :
