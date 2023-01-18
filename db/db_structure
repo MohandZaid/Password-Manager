@@ -1,20 +1,27 @@
 profiles = {
-    'username':
+    "username":
         {
-            'email':'email',
-            'password':'any',
+            "email":"email",
+            "password":"any",
         }
     }
 
 secret = {
-    "profile":
+    "profile(username)":
         {
-        "website":
+        "website-1":
             {
                 "login" : "email",
                 "password" : "password",
                 "start" : "date formula dd-mm-yyyy",
                 "expiry" : "date formula dd-mm-yyyy"
-            }
+            },
+        "website-2":
+            {
+                "login" : "email",
+                "password" : "password",
+                "start" : "date formula dd-mm-yyyy",
+                "expiry" : "date formula dd-mm-yyyy"
+            },
         }
     }

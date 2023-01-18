@@ -69,7 +69,7 @@ def make_profile(username, email, master_password, confirm_pass):
         return 'weak_password'
 
     if not master_password == confirm_pass :
-        return False
+        return 'not_match'
     
     master_password = hash_secret(master_password)
 
@@ -94,7 +94,7 @@ def password_status(query):
 
 def enter_profile(username, password):
 
-    if username in DBHandler.get_all_profile_names() :
+    if username in DBHandler.get_all_profile_names('profilesdb.json') :
         
         if password == DBHandler.get_password(username=username) :
             return True

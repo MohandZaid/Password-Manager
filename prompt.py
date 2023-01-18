@@ -1,4 +1,5 @@
 import os , sys
+from time import sleep
 
 from termcolor import colored
 from getpass import getpass
@@ -53,7 +54,8 @@ class Prompt :
         master_password = getpass('Password : ').strip()
         confirm_pass = getpass('Confirm-Password : ').strip()
 
-        if username in DBHandler.get_all_profile_names():
+        if username in\
+            DBHandler.get_all_profile_names(db_to_query='profilesdb.json'):
             print('\nAlert: Username Already Exist')
             return
 
@@ -71,17 +73,21 @@ class Prompt :
             print("- At least 8 characters long")
             print("- Includes at least one uppercase letter, one lowercase letter, one digit")
             print("- Includes at least one special character (!@#$%^&*)")
+        
+        if pf_data == 'not_match' :
+            print('\n(Alert) Password Not Match')
 
-        elif pf_data :
-            print('\nProfile Added Successfully')
-            DBHandler(pf_data['username'], pf_data['master_password'], pf_data['email'])
+        elif isinstance(pf_data, dict) :
+            print('\n(Successful) Profile Added')
+            DBHandler(pf_data['username'], pf_data['master_password'],\
+                    pf_data['email'])
 
         return 
 
     def enter_action(self):
 
         username = input('Username : ').lower().strip()
-        master_password = hash_secret(getpass('Password : ').lower().strip())
+        master_password = hash_secret(getpass('Password : ').strip())
 
         enter = enter_profile(username, master_password)
         if enter == 'not-user':
@@ -113,7 +119,7 @@ class Prompt :
     
 
         elif command in ['clear', 'c'] :
-            os.system('clear')
+            os.system('cls' if os.name == 'nt' else 'clear')
  
         elif command in ['e', 'exit'] :
             sys.exit()
@@ -153,7 +159,7 @@ class Prompt :
                 pass
 
         elif command in ['create-secret', 'sec'] :
-            print(f'\n(Generated Secret) {password_gen()}')
+            print(f'\n(Generated-Secret) {password_gen()}')
 
 
         else:
@@ -191,22 +197,49 @@ class UserPrompt(Prompt) :
     def create_secret(self):
             website = input('Website : ').lower().strip()
 
-            email = input('Email : ').lower().strip()
-            if not check_valid(email, 'email') :
-                print('\nAlert: Invalid Email')
-                return
+            login = input('Login Parameter : ').lower().strip()
 
-            password = password_gen()
+            password = ''
 
-            print(password)
+            i = 0
+            while i < 3 :
+                password = password_gen()
+                print(f'\n(Generated-Secret) {password}')
+                agree = input('Save? [Y/n] ').strip().lower()
+
+                if agree in ['y', ''] :
+                    break
+                else :
+                    i += 1
+                    continue
+
+            if i == 3 :
+                print('\n(Alert) Profile Not Saved')
+                return False
+
 
             password = encrypt_secret(DBHandler.get_password(self.user), password)
 
             start = password_status('start')
             expiry = password_status('setexpiry')
 
-            return {website : {'email': email, 'password': password,\
-                            'start': start, 'expiry': expiry}}
+            DBHandler.save_secret(profilename=self.user,\
+                    website= website ,\
+                    db_buffer_to_save= {\
+                    'login': login,\
+                    'password': password,\
+                    'start': start, 'expiry': expiry 
+                                        } )
+
+            print(f'\n(Successful) Secret for [{website}] Added')
+            print(f'(Successful) Secret is {password}')
+            print(f'\n(Successful) Screen will be cleared in 10 seconds')
+
+            sleep(10)
+            os.system('cls' if os.name == 'nt' else 'clear')
+
+            return
+
 
     def help_msg(self) :
         print("\n- (sec) create-secret\n- (h) help\n- (i) info\n- (c) clear\n\
@@ -218,7 +251,7 @@ class UserPrompt(Prompt) :
             print('test')
      
         elif command in ['create-secret', 'sec'] :
-            print(self.create_secret())
+            self.create_secret()
 
         elif command in ['quit', 'q'] :
             print(f'\n(Quitting Profile)')

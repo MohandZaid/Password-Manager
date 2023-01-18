@@ -19,5 +19,5 @@ def hash_secret(password):
 
 
 def encrypt_secret(master_password_from_db, secret) :
-    return 'test-from-encrypt-secret-function-'+ secret
+    return  secret
 
