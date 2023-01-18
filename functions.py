@@ -120,5 +120,3 @@ def enter_profile(username, password):
         return (False, None)
 
     return 'not-user'
-
-print(password_gen())

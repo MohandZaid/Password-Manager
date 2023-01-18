@@ -1,8 +1,11 @@
 import os , sys
 from time import sleep
-
-from termcolor import colored
 from getpass import getpass
+
+try :
+    from termcolor import colored
+except ModuleNotFoundError :
+    pass
 
 from functions import *
 from database import *
