@@ -57,10 +57,10 @@ def secret_crypto_action(origin_key, password, action):
 
     if action == 'encrypt' :
 
-        return cipher.encrypt(str(password).encode())
+        return cipher.encrypt(password.encode())
 
     elif action == 'decrypt' :
 
-        return cipher.decrypt(str(password).encode('utf-8'))
+        return cipher.decrypt(password)
 
     return '(Error) Invalid Argument: Action'

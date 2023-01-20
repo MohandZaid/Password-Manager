@@ -12,10 +12,16 @@ from database import *
 from secretscrypto import *
 from banners import *
 
+# To-Do : Adding feature --> To get profile credential
 
 dev = 'Developed By: Mohand Zaid (mohandzaid33@gmail.com)'
 help_msg = '(h)help to show commands!'
- 
+
+main_prompt_help = "\n- (mkpf) make-profile\n- (enter) enter-profile\n- (sec) prompt-secret\n- (ls) list-profiles\n\
+- (h) help\n- (i) info\n- (c) clear\n- (e) exit\n- (re) restart"
+
+user_prompt_help = "\n- (sec) create-secret\n- (gpwd) get-password\n- (ls) list-websites\n- (h) help\n- (i) info\n- (c) clear\n\
+- (e) exit\n- (re) restart"
 
 class Prompt :
 
@@ -52,7 +58,7 @@ class Prompt :
         confirm_pass = getpass('Confirm-Password : ').strip()
 
         if username in\
-            DBHandler.get_all_profile_names(db_to_query='profilesdb.json'):
+            DBHandler.get_all_profile_names(db_to_query=profile_db):
             print('\nAlert: Username Already Exist')
             return
 
@@ -97,8 +103,7 @@ class Prompt :
             print(f'\n(Alert) Invalid Password')
 
     def help_msg(self) :
-        print("\n- (mkpf) make-profile\n- (enter) enter-profile\n- (sec) prompt-secret\n\
-- (h) help\n- (i) info\n- (c) clear\n- (e) exit\n- (re) restart")
+        print(main_prompt_help)
         
 
     def general_commands(self, command):
@@ -167,6 +172,15 @@ class Prompt :
         elif command in ['create-secret', 'sec'] :
             print(f'\n(Generated-Secret) {password_gen()}')
 
+        elif command in ['list-profiles', 'list', 'ls'] :
+
+            profiles = DBHandler.get_all_profile_names()
+
+            print('-'*19, 'Available Profiles:', '-'*19, sep='\n')
+
+            for profile in enumerate(profiles, 1) :
+
+                print(f'({profile[0]}) {profile[1]}')
 
         else:
             return False
@@ -243,7 +257,7 @@ class UserPrompt(Prompt) :
                     website= website ,\
                     db_buffer_to_save= {\
                     'login': login,\
-                    'password': str(password_encrypted)[2:-1],\
+                    'password': convert_bytes_to_str(password_encrypted),\
                     'start': start, 'expiry': expiry 
                                         } )
 
@@ -265,8 +279,7 @@ class UserPrompt(Prompt) :
                 print(saved)
 
     def help_msg(self) :
-        print("\n- (sec) create-secret\n- (h) help\n- (i) info\n- (c) clear\n\
-- (e) exit\n- (re) restart")
+        print(user_prompt_help)
 
     def user_commands(self, command) :
 
@@ -278,17 +291,41 @@ class UserPrompt(Prompt) :
 
         elif command in ['get-password', 'g'] :
 
-            # TESTING BLOCK
-            ################
-            login = input('\nWhich Login? ')
-            print('-'*22)
-            p = DBHandler.get_password(self.user, 'secretdb.json', website=login)
+            website = input('\nWhich Website? ')
 
-            d = secret_crypto_action(self.key, p, 'decrypt')
-            print(p)
+            password_encrypted = DBHandler.get_secret(self.user, website=website)
+
+            if password_encrypted == 'not-found' :
+                print('\nInvalid Entry')
+                return
+            if password_encrypted == 'db-not-found' :
+                print('\n(Error) Database File Not Found')
+                return
+
+            password_decrypted = secret_crypto_action(self.key,
+                convert_str_to_bytes(password_encrypted), 'decrypt')
+
+            password_decrypted = convert_bytes_to_str(password_decrypted)
+
             print('-'*22)
-            print(d)
-            ################
+            print(password_decrypted)
+        
+        elif command in ['list-websites', 'list', 'ls'] :
+
+            profiles = DBHandler.get_all_websites(self.user)
+
+            if profiles == 'empty-profile' :
+                print('\nEmpty Profile')
+                return
+            if profiles == 'db-not-found' :
+                print('\n(Error) Secrets File Not Found')
+                return
+
+            print('-'*19, 'Available Websites:', '-'*19, sep='\n')
+
+
+            for profile in enumerate(profiles, 1):
+                print(f'({profile[0]}) {profile[1]}')
 
         elif command in ['quit', 'q'] :
             print(f'\n(Quitting Profile)')

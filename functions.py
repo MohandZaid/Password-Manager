@@ -1,4 +1,4 @@
-import re
+import re, os
 import time
 import random
 
@@ -52,7 +52,7 @@ def is_strong_password(password):
         return False
     
     # Check for at least one special character (!@#$%^&*)
-    if not re.search(r'[!@#$%^&*]', password):
+    if not re.search(r'[!#$%&*+_/:;=?@]', password):
         return False
     
     return True
@@ -115,8 +115,32 @@ def enter_profile(username, password):
 
     if username in DBHandler.get_all_profile_names('profilesdb.json') :
         
-        if hash_secret(password) == DBHandler.get_password(username=username) :
+        if hash_secret(password) ==\
+        DBHandler.get_profile_password(username=username) :
             return (True, hash_secret(password, 'sha256'))
         return (False, None)
 
     return 'not-user'
+
+
+def convert_bytes_to_str(data_to_convert):
+    
+    return str(data_to_convert)[2:-1]
+
+def convert_str_to_bytes(data_to_convert):
+
+    return str(data_to_convert).encode('utf-8')
+
+
+def check_file_exists(FILE, PATH='./' ):
+
+    # Split the PATH environment variable into individual directories
+    directories = PATH.split(os.pathsep)
+
+    # Check each directory for the existence of the file
+    for directory in directories:
+        file_path = os.path.join(directory, FILE)
+        if os.path.isfile(file_path):
+            return True
+
+    return False
